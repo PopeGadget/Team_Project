@@ -1,14 +1,31 @@
 package com.example.a100456794.login2;
 
+import android.app.ProgressDialog;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
-public class MainActivity extends AppCompatActivity {
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
+import com.google.firebase.auth.FirebaseAuth;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+
+    //Variables for logging in
+    private Button btnLogin;
+    private EditText editTextUsername;
+    private EditText editTextPassword;
+
+    private FirebaseAuth firebaseAuth;
+    private ProgressDialog progressDialog;
 
 
     @Override
@@ -16,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
+        //This piece is for clicking 'Sign Up' and being taken to Sign Up page
         final TextView signup=(TextView)findViewById(R.id.signup);
         signup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -26,6 +43,66 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        firebaseAuth = FirebaseAuth.getInstance();
+
+        //checks if user is already logged in
+        if(firebaseAuth.getCurrentUser() != null){
+            finish();
+            startActivity(new Intent(getApplicationContext(), Home.class));
+        }
+
+        //Taking values from XML and storing in the variables
+        editTextUsername = (EditText) findViewById(R.id.username_input);
+        editTextPassword = (EditText) findViewById(R.id.password_input);
+        btnLogin = (Button) findViewById(R.id.btn_login);
+
+        progressDialog = new ProgressDialog(this);
+
+        btnLogin.setOnClickListener(this);
+
+    }
+
+    private void userLogin(){
+        String username = editTextUsername.getText().toString().trim();
+        String password = editTextPassword.getText().toString().trim();
+
+        if(TextUtils.isEmpty(username)){
+            //email empty
+            Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        if(TextUtils.isEmpty(password)){
+            //password empty
+            Toast.makeText(this, "Please enter password", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        else {
+            progressDialog.setMessage("Logging in...");
+            progressDialog.show();
+
+            firebaseAuth.signInWithEmailAndPassword(username, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            progressDialog.hide();
+                            if (task.isSuccessful()) {
+                                //start the profile activity
+                                finish();
+                                startActivity(new Intent(getApplicationContext(), Home.class));
+                            }
+                        }
+                    });
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        if(v == btnLogin){
+            userLogin();
+        }
 
     }
 }

@@ -46,17 +46,21 @@ public class SignUp extends Activity implements View.OnClickListener {
 
         progressDialog = new ProgressDialog(this);
 
+        //Variables to hold buttons
         buttonRegister = (Button) findViewById(R.id.btn_signup);
+        final TextView login=(TextView)findViewById(R.id.alreadyregistered);
 
+        //Takes values from xml and puts them into fields here
         editTextUsername = (TextInputEditText) findViewById(R.id.username_input);
         editTextFirstName = (TextInputEditText) findViewById(R.id.firstname_input);
         editTextLastName = (TextInputEditText) findViewById(R.id.lastname_input);
         editTextPassword = (TextInputEditText) findViewById(R.id.password_input);
         editTextPasswordConfirm = (TextInputEditText) findViewById(R.id.confirmpassword_input);
 
+        //This creates a click event when the 'Sign up' button is pressed (Used for the OnClick function)
         buttonRegister.setOnClickListener(this);
 
-        final TextView login=(TextView)findViewById(R.id.alreadyregistered);
+        //This piece is for when the 'Already Registered?' button is clicked and being taken back to the login page
         login.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v1){
@@ -67,6 +71,8 @@ public class SignUp extends Activity implements View.OnClickListener {
     }
 
     private void registerUser(){
+
+        //Taking the values from the editTexts and putting them into strings so they can be passed through validation and sent to Firebase
         String username = editTextUsername.getText().toString().trim();
         String firstName = editTextFirstName.getText().toString().trim();
         String lastName = editTextLastName.getText().toString().trim();
@@ -76,7 +82,6 @@ public class SignUp extends Activity implements View.OnClickListener {
         if(TextUtils.isEmpty(username)){
             //email empty
             Toast.makeText(this, "Please enter email", Toast.LENGTH_SHORT).show();
-
             return;
         }
 
@@ -106,11 +111,12 @@ public class SignUp extends Activity implements View.OnClickListener {
 
 
         if(!password.equals(passwordConfirm)){
+            //passwords don't match
             Toast.makeText(this, "The passwords do not match!", Toast.LENGTH_SHORT).show();
             return;
         }
 
-
+        // As long as passes all above validation we attempt to send details over to Firebase to be saved. If fails we get a return message.
         else {
 
             progressDialog.setMessage("Registering User...");
@@ -123,10 +129,15 @@ public class SignUp extends Activity implements View.OnClickListener {
                         @Override
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if (task.isSuccessful()) {
-
+                                //Logs in and redirects you to the Home page (through MainActivity)
                                 progressDialog.hide();
                                 Toast.makeText(SignUp.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
-                            } else {
+                                Intent launchActivity1 = new Intent(SignUp.this, MainActivity.class);
+                                startActivity(launchActivity1);
+                            }
+
+                             else {
+                                 //If the sign up fails we get onscreen message identifying the issue
                                 progressDialog.hide();
                                 FirebaseAuthException e = (FirebaseAuthException )task.getException();
                                 Toast.makeText(SignUp.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -137,6 +148,7 @@ public class SignUp extends Activity implements View.OnClickListener {
         }
     }
 
+    // Triggers registerUser function when Sign Up button is pressed
     @Override
     public void onClick(View view) {
         if(view == buttonRegister){
