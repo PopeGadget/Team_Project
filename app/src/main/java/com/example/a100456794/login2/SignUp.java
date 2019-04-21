@@ -21,6 +21,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import org.w3c.dom.Document;
 
@@ -73,9 +76,9 @@ public class SignUp extends Activity implements View.OnClickListener {
     private void registerUser(){
 
         //Taking the values from the editTexts and putting them into strings so they can be passed through validation and sent to Firebase
-        String username = editTextUsername.getText().toString().trim();
-        String firstName = editTextFirstName.getText().toString().trim();
-        String lastName = editTextLastName.getText().toString().trim();
+        final String username = editTextUsername.getText().toString().trim();
+        final String firstName = editTextFirstName.getText().toString().trim();
+        final String lastName = editTextLastName.getText().toString().trim();
         String password = editTextPassword.getText().toString().trim();
         String passwordConfirm = editTextPasswordConfirm.getText().toString().trim();
 
@@ -133,11 +136,21 @@ public class SignUp extends Activity implements View.OnClickListener {
                                 progressDialog.hide();
                                 Toast.makeText(SignUp.this, "Registered Successfully", Toast.LENGTH_SHORT).show();
                                 Intent launchActivity1 = new Intent(SignUp.this, MainActivity.class);
+
+                                //Places the username, first name and password into the Firebase Database
+                                FirebaseDatabase database =  FirebaseDatabase.getInstance();
+                                FirebaseUser user =  firebaseAuth.getCurrentUser();
+                                String userId = user.getUid();
+                                DatabaseReference mRef =  database.getReference().child("Users").child(userId);
+                                mRef.child("username").setValue(username);
+                                mRef.child("firstName").setValue(firstName);
+                                mRef.child("lastName").setValue(lastName);
+
                                 startActivity(launchActivity1);
                             }
 
-                             else {
-                                 //If the sign up fails we get onscreen message identifying the issue
+                            else {
+                                //If the sign up fails we get onscreen message identifying the issue
                                 progressDialog.hide();
                                 FirebaseAuthException e = (FirebaseAuthException )task.getException();
                                 Toast.makeText(SignUp.this, "Failed Registration: "+e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -145,6 +158,7 @@ public class SignUp extends Activity implements View.OnClickListener {
                             }
                         }
                     });
+
         }
     }
 
