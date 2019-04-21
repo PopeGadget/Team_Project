@@ -1,9 +1,15 @@
 apply plugin: 'com.android.application'
 
 allprojects {
+    gradle.projectsEvaluated {
+        tasks.withType(JavaCompile) {
+            options.compilerArgs << "-Xlint:deprecation"
+        }
+    }
     repositories {
         maven { url 'https://dl.bintray.com/android/android-tools' }
         google()
+        mavenCentral()
 
     }
 }
@@ -41,6 +47,14 @@ dependencies {
     implementation 'com.google.firebase:firebase-core:16.0.7'
     implementation 'com.google.firebase:firebase-auth:16.1.0'
     implementation 'com.google.firebase:firebase-database:16.1.0'
+    implementation 'com.mapbox.mapboxsdk:mapbox-android-sdk:7.3.0'
+    implementation 'com.google.android.gms:play-services-gcm:16.1.0'
+    implementation 'com.google.android.gms:play-services-location:16.0.0'
+    implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.google.android.gms:play-services-places:16.0.0'
+    implementation 'com.google.maps.android:android-maps-utils:0.5+'
+    implementation 'com.google.code.gson:gson:2.8.5'
+
 
 }
 
